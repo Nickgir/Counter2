@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-PENSE PRO // Cyber Locker Intelligence</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root { 
+            --accent: #6366f1; 
+            --accent-hover: #4f46e5;
+            --bg: #020617; 
+            --card-bg: rgba(15, 23, 42, 0.7);
+            --rose: #f43f5e;
+            --emerald: #10b981;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --white: #f8fafc;
+            --gold: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Outfit', 'Inter', system-ui, sans-serif; 
+            background-color: var(--bg);
+            color: var(--white);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 70%);
+            padding: 1rem; /* Reduced for mobile */
+            line-height: 1.5;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 2rem; }
+        }
+
+        .max-w-7xl { max-width: 80rem; margin: 0 auto; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-4 { gap: 1rem; }
+        .grid { display: grid; gap: 1rem; } /* Unified gap */
+
+        /* Responsive Grid Logic */
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        
+        @media (min-width: 640px) {
+            .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (min-width: 768px) {
+            .md\:flex-row { flex-direction: row; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .grid { gap: 1.5rem; }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .lg\:col-span-4 { grid-column: span 4 / span 4; }
+            .lg\:col-span-8 { grid-column: span 8 / span 8; }
+        }
+
+        .glass { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 1.5rem; /* Slightly smaller for better mobile fit */
+            padding: 1.2rem;
+            width: 100%; /* Ensure it fills container */
+        }
+        
+        @media (min-width: 768px) {
+            .glass-card { padding: 1.5rem; border-radius: 2rem; }
+        }
+
+        .glass-card:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.04); }
+
+        .cyber-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            outline: none;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .cyber-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 1rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            width: 100%;
+        }
+        .btn-primary:hover { transform: scale(0.98); background: var(--accent-hover); }
+
+        /* Locker Specific UI - Scaling Denominations */
+        .denom-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns on small mobile */
+            gap: 0.5rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.8rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 400px) {
+            .denom-grid { grid-template-columns: repeat(3, 1fr); } /* 3 columns on larger screens */
+        }
+
+        .denom-item label { font-size: 9px; color: var(--slate-500); display: block; text-align: center; }
+        .denom-item input { 
+            width: 100%; background: #020617; border: 1px solid #1e293b; 
+            color: var(--emerald); text-align: center; padding: 6px; border-radius: 4px; font-size: 12px;
+        }
+
+        .locker-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .locker-table th { text-align: left; color: var(--slate-500); padding-bottom: 0.5rem; font-size: 10px; }
+        .locker-table td { padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .note-tag {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--emerald);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 10px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .type-toggle {
+            background: rgba(255,255,255,0.05);
+            padding: 0.25rem;
+            border-radius: 1rem;
+            display: flex;
+            gap: 0.25rem;
+        }
+        .type-toggle button {
+            flex: 1; padding: 0.6rem; border-radius: 0.75rem; border: none;
+            color: white; font-weight: 900; font-size: 0.7rem; cursor: pointer;
+            background: transparent; transition: 0.3s;
+        }
+        .btn-exp.active { background: var(--rose); }
+        .btn-inc.active { background: var(--emerald); }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .neon-glow { text-shadow: 0 0 10px rgba(99, 102, 241, 0.5); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="max-w-7xl flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+        <div class="flex items-center gap-4">
+            <div style="background: var(--accent); padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 20px -5px var(--accent);">
+                <svg style="width:1.5rem; height:1.5rem; color:white;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <div>
+                <h1 style="font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; font-style: italic;">X-PENSE <span style="color:var(--accent)">PRO</span></h1>
+                <p id="live-time" style="font-size: 0.7rem; color: var(--emerald); font-weight: bold;">00:00:00</p>
+            </div>
+        </div>
+
+        <div class="glass" style="padding: 0.5rem 1.5rem; border-radius: 2rem;">
+            <p id="live-date" style="font-size: 0.8rem; font-weight: 900;"></p>
+        </div>
+
+        <button onclick="resetSystem()" style="background:transparent; border:1px solid var(--rose); color:var(--rose); padding:0.6rem 1.2rem; border-radius:0.75rem; cursor:pointer; font-weight:bold; font-size: 0.7rem; width: auto;">
+            WIPE SYSTEM
+        </button>
+    </header>
+
+    <main class="max-w-7xl">
+        
+        <!-- Search Command Center (Responsive Grid) -->
+        <section class="glass-card" style="margin-bottom: 2rem; border-color: rgba(99, 102, 241, 0.2);">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                <input id="searchName" oninput="render()" placeholder="Filter description..." class="cyber-input">
+                <input id="searchExact" type="number" oninput="render()" placeholder="Exact ₹" class="cyber-input">
+                <input id="searchMin" type="number" oninput="render()" placeholder="Min ₹" class="cyber-input">
+                <input id="searchMax" type="number" oninput="render()" placeholder="Max ₹" class="cyber-input">
+            </div>
+        </section>
+
+        <div class="grid lg:grid-cols-12">
+            
+            <!-- Left: Entry & Locker (Stacked on mobile, Sidebar on desktop) -->
+            <div class="lg:col-span-4 grid grid-cols-1" style="align-content: start;">
+                
+                <!-- Locker Card - Now scales properly -->
+                <div class="glass-card" style="border: 1px solid rgba(245, 158, 11, 0.3);">
+                    <h2 style="font-size: 0.7rem; color: var(--gold); letter-spacing: 1px; margin-bottom: 1rem; font-weight: 900;">PHYSICAL LOCKER INVENTORY</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="locker-table">
+                            <thead><tr><th>NOTE</th><th>QTY</th><th>VALUE</th></tr></thead>
+                            <tbody id="lockerBody"></tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" style="padding-top:1rem; font-weight:bold;">Cash Total</td>
+                                    <td id="lockerTotal" style="padding-top:1rem; font-weight:900; color:var(--emerald);">₹0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Input Card -->
+                <div class="glass-card">
+                    <form id="entryForm" class="flex flex-col gap-4">
+                        <div class="type-toggle">
+                            <button type="button" onclick="setTxType('expense')" id="btnExp" class="btn-exp active">EXPENSE</button>
+                            <button type="button" onclick="setTxType('income')" id="btnInc" class="btn-inc">INCOME</button>
+                        </div>
+                        <input id="desc" required placeholder="Description..." class="cyber-input">
+                        <input id="amt" type="number" required placeholder="Amount ₹" class="cyber-input" style="font-size:1.2rem; font-weight:900;">
+                        
+                        <div>
+                            <p style="font-size: 9px; font-weight: bold; color: var(--accent); margin-bottom: 5px;">BREAKDOWN BY NOTES</p>
+                            <div class="denom-grid">
+                                <div class="denom-item"><label>500</label><input type="number" data-v="500" class="d-in" oninput="calcDenom()"></div>
+                                <div class="denom-item"><label>200</label><input type="number" data-v="200" class="d-in" oninput="calcDenom()"></div>
+                                <div class="denom-item"><label>100</label><input type="number" data-v="100" class="d-in" oninput="calcDenom()"></div>
+                                <div class="denom-item"><label>50</label><input type="number" data-v="50" class="d-in" oninput="calcDenom()"></div>
+                                <div class="denom-item"><label>20</label><input type="number" data-v="20" class="d-in" oninput="calcDenom()"></div>
+                                <div class="denom-item"><label>10</label><input type="number" data-v="10" class="d-in" oninput="calcDenom()"></div>
+                            </div>
+                        </div>
+
+                        <select id="cat" class="cyber-input" style="cursor:pointer;" onchange="toggleCustomCat()">
+                            <option value="Food">🍕 Food & Dining</option>
+                            <option value="Transport">🚀 Travel & Fuel</option>
+                            <option value="Shopping">🛍️ Shopping</option>
+                            <option value="Health">💊 Health</option>
+                            <option value="Utilities">⚡ Utilities</option>
+                            <option value="Other">📦 Miscellaneous</option>
+                            <option value="Custom">✨ Custom Category</option>
+                        </select>
+                        <input id="customCat" placeholder="Category Name..." class="cyber-input" style="display:none;">
+                        
+                        <button type="submit" class="btn-primary">LOG TRANSACTION</button>
+                    </form>
+                </div>
+
+                <div class="glass-card" style="border-left: 4px solid var(--accent);">
+                    <p style="font-size: 10px; font-weight: bold; color: var(--slate-500);">NET BALANCE</p>
+                    <h2 id="netBalance" class="neon-glow" style="font-size: 2rem; font-weight: 900;">₹0</h2>
+                </div>
+            </div>
+
+            <!-- Right: Stats & Ledger -->
+            <div class="lg:col-span-8 grid grid-cols-1" style="align-content: start;">
+                <div class="grid grid-cols-1 md:grid-cols-2">
+                    <div class="glass-card" style="height: 14rem;"><canvas id="weeklyChart"></canvas></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1" style="gap: 1rem;">
+                        <div class="glass-card flex justify-between items-center">
+                            <div><p style="font-size: 10px; color: var(--slate-500);">WEEKLY OUT</p><p id="weekTotal" style="font-size: 1.2rem; font-weight: 900; color: var(--rose);">₹0</p></div>
+                            <svg style="color:rgba(244,63,94,0.2); width:2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg>
+                        </div>
+                        <div class="glass-card flex justify-between items-center">
+                            <div><p style="font-size: 10px; color: var(--slate-500);">MONTHLY IN</p><p id="monthTotal" style="font-size: 1.2rem; font-weight: 900; color: var(--emerald);">₹0</p></div>
+                            <svg style="color:rgba(16,185,129,0.2); width:2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2" style="margin-bottom: 1.5rem;">
+                        <h3 style="font-weight: 900;">Financial Intelligence Ledger</h3>
+                        <span id="resultsCount" style="font-size: 10px; color: var(--accent); font-weight: bold; background: rgba(99,102,241,0.1); padding: 4px 8px; border-radius: 4px;">0 RECORDS</span>
+                    </div>
+                    <div id="txList" class="custom-scroll" style="display: flex; flex-direction: column; gap: 1rem; max-height: 600px; overflow-y: auto; padding-right: 0.5rem;">
+                        <!-- Ledger Items -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let txs = JSON.parse(localStorage.getItem('xp_txs_v5')) || [];
+        let locker = JSON.parse(localStorage.getItem('xp_locker_v5')) || { 500:0, 200:0, 100:0, 50:0, 20:0, 10:0 };
+        let activeType = 'expense';
+        let chart = null;
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('live-time').innerText = now.toLocaleTimeString('en-IN', { hour12: false });
+            document.getElementById('live-date').innerText = now.toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        function setTxType(type) {
+            activeType = type;
+            document.getElementById('btnExp').className = type === 'expense' ? 'btn-exp active' : 'btn-exp';
+            document.getElementById('btnInc').className = type === 'income' ? 'btn-inc active' : 'btn-inc';
+        }
+
+        function toggleCustomCat() {
+            const catSelect = document.getElementById('cat');
+            document.getElementById('customCat').style.display = catSelect.value === 'Custom' ? 'block' : 'none';
+        }
+
+        function calcDenom() {
+            let total = 0;
+            document.querySelectorAll('.d-in').forEach(input => {
+                const val = parseInt(input.getAttribute('data-v'));
+                const count = parseInt(input.value) || 0;
+                total += val * count;
+            });
+            if(total > 0) document.getElementById('amt').value = total;
+        }
+
+        document.getElementById('entryForm').onsubmit = (e) => {
+            e.preventDefault();
+            const now = new Date();
+            const amount = parseFloat(document.getElementById('amt').value);
+            
+            let selectedCat = document.getElementById('cat').value;
+            if (activeType === 'income') selectedCat = '💰 Income';
+            else if (selectedCat === 'Custom') selectedCat = `✨ ${document.getElementById('customCat').value || 'Other'}`;
+
+            let usedDenoms = {};
+            document.querySelectorAll('.d-in').forEach(input => {
+                const v = input.getAttribute('data-v');
+                const count = parseInt(input.value) || 0;
+                if(count > 0) {
+                    usedDenoms[v] = count;
+                    if(activeType === 'income') locker[v] += count;
+                    else locker[v] -= count;
+                }
+            });
+
+            const entry = {
+                id: Date.now(),
+                amount,
+                desc: document.getElementById('desc').value,
+                type: activeType,
+                cat: selectedCat,
+                denoms: usedDenoms,
+                timestamp: now.toISOString(),
+                date: now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+                time: now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            txs.unshift(entry);
+            save();
+            e.target.reset();
+            document.getElementById('customCat').style.display = 'none';
+            render();
+        };
+
+        function save() {
+            localStorage.setItem('xp_txs_v5', JSON.stringify(txs));
+            localStorage.setItem('xp_locker_v5', JSON.stringify(locker));
+        }
+
+        function render() {
+            const list = document.getElementById('txList');
+            const sName = document.getElementById('searchName').value.toLowerCase();
+            const sExact = parseFloat(document.getElementById('searchExact').value);
+            const sMin = parseFloat(document.getElementById('searchMin').value) || 0;
+            const sMax = parseFloat(document.getElementById('searchMax').value) || Infinity;
+
+            const filtered = txs.filter(t => {
+                const matchesName = t.desc.toLowerCase().includes(sName);
+                const matchesExact = isNaN(sExact) ? true : t.amount === sExact;
+                const matchesRange = t.amount >= sMin && t.amount <= sMax;
+                return matchesName && matchesExact && matchesRange;
+            });
+
+            const totalInc = txs.filter(t => t.type === 'income').reduce((a, b) => a + b.amount, 0);
+            const totalExp = txs.filter(t => t.type === 'expense').reduce((a, b) => a + b.amount, 0);
+            const weekExp = txs.filter(t => {
+                const d = new Date(t.timestamp);
+                return (new Date() - d) < 7*24*60*60*1000 && t.type === 'expense';
+            }).reduce((a,b)=>a+b.amount,0);
+
+            document.getElementById('netBalance').innerText = `₹${(totalInc - totalExp).toLocaleString()}`;
+            document.getElementById('weekTotal').innerText = `₹${weekExp.toLocaleString()}`;
+            document.getElementById('resultsCount').innerText = `${filtered.length} RECORDS`;
+
+            const lBody = document.getElementById('lockerBody');
+            let lTotal = 0;
+            lBody.innerHTML = '';
+            Object.keys(locker).sort((a,b)=>b-a).forEach(k => {
+                const val = k * locker[k];
+                lTotal += val;
+                lBody.innerHTML += `<tr><td><span class="note-tag">₹${k}</span></td><td>${locker[k]}</td><td style="color:var(--slate-400)">₹${val}</td></tr>`;
+            });
+            document.getElementById('lockerTotal').innerText = `₹${lTotal.toLocaleString()}`;
+
+            list.innerHTML = filtered.map(t => {
+                let noteInfo = Object.entries(t.denoms).map(([v, c]) => `${c}x₹${v}`).join(', ');
+                return `
+                <div class="glass-card flex justify-between items-center" style="padding:1rem; border-right: 4px solid ${t.type === 'income' ? 'var(--emerald)' : 'var(--rose)'}">
+                    <div class="flex items-center gap-4">
+                        <div style="font-size: 1.5rem;">${t.cat.split(' ')[0]}</div>
+                        <div>
+                            <p style="font-weight: bold; font-size: 0.9rem;">${t.desc}</p>
+                            <p style="font-size: 9px; color: var(--slate-500); font-weight: bold;">${t.date} • ${t.time} ${noteInfo ? '• <span style="color:var(--gold)">'+noteInfo+'</span>' : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <p style="font-weight: 900; color: ${t.type === 'income' ? 'var(--emerald)' : 'white'}">${t.type === 'income' ? '+' : '-'}₹${t.amount.toLocaleString()}</p>
+                        <button onclick="deleteTx(${t.id})" style="background:none; border:none; color:var(--slate-500); cursor:pointer;">
+                            <svg style="width:1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+
+            updateChart();
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            const days = [...Array(7)].map((_, i) => {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+            }).reverse();
+
+            const data = days.map(d => txs.filter(t => t.date === d && t.type === 'expense').reduce((a,b)=>a+b.amount,0));
+
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        data: data,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true, tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#475569', font: { size: 8 } } } }
+                }
+            });
+        }
+
+        function deleteTx(id) {
+            const t = txs.find(tx => tx.id === id);
+            if(t && t.denoms) {
+                Object.entries(t.denoms).forEach(([v, c]) => {
+                    if(t.type === 'income') locker[v] -= c;
+                    else locker[v] += c;
+                });
+            }
+            txs = txs.filter(tx => tx.id !== id);
+            save();
+            render();
+        }
+
+        function resetSystem() {
+            if (confirm("ERASE ALL SECURE DATA?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
